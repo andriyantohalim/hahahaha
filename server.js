@@ -483,6 +483,223 @@ class CompensationDesign {
     };
   }
   
+  // Generate Bode plot data for power stage, compensator, and loop gain
+  static generateBodePlot(params, compensatorType = 'type2') {
+    const { Vout, fsw, L, C, ESR, Vin, loadCurrent } = params;
+    
+    // Frequency range: 1 Hz to 1 MHz (logarithmic)
+    const frequencies = [];
+    for (let decade = 0; decade <= 6; decade++) {
+      for (let step = 1; step <= 9; step++) {
+        const freq = step * Math.pow(10, decade);
+        if (freq <= 1e6) frequencies.push(freq);
+      }
+    }
+    
+    // Power stage transfer function parameters
+    const fc_lc = 1 / (2 * Math.PI * Math.sqrt(L * C));
+    const fz_esr = 1 / (2 * Math.PI * ESR * C);
+    const Qo = Math.sqrt(L / C) / ESR;
+    const Gps_dc = Vout; // DC gain in volts
+    
+    // Get compensator design
+    const compensator = compensatorType === 'type3' ? 
+      this.designTypeIII(params) : this.designTypeII(params);
+    
+    // Calculate frequency responses
+    const powerStageData = frequencies.map(f => {
+      const s = 2 * Math.PI * f;
+      const response = this.calculatePowerStageResponse(s, Gps_dc, fc_lc, fz_esr, Qo);
+      return {
+        frequency: f,
+        magnitude: 20 * Math.log10(response.magnitude),
+        phase: response.phase * 180 / Math.PI
+      };
+    });
+    
+    const compensatorData = frequencies.map(f => {
+      const s = 2 * Math.PI * f;
+      const response = compensatorType === 'type3' ? 
+        this.calculateType3CompensatorResponse(s, compensator) :
+        this.calculateType2CompensatorResponse(s, compensator);
+      return {
+        frequency: f,
+        magnitude: 20 * Math.log10(response.magnitude),
+        phase: response.phase * 180 / Math.PI
+      };
+    });
+    
+    // Loop gain = Power Stage × Compensator × Modulator Gain × Feedback Gain
+    const Gm = 1 / 3.3; // Typical PWM modulator gain (1/Vtriangle)
+    const Gfb = 1; // Feedback gain (assuming unity for simplicity)
+    
+    const loopGainData = frequencies.map((f, i) => {
+      const psResponse = powerStageData[i];
+      const compResponse = compensatorData[i];
+      const totalMagnitude = psResponse.magnitude + compResponse.magnitude + 
+                           20 * Math.log10(Gm * Gfb);
+      const totalPhase = psResponse.phase + compResponse.phase;
+      
+      return {
+        frequency: f,
+        magnitude: totalMagnitude,
+        phase: totalPhase
+      };
+    });
+    
+    // Find crossover frequency and margins
+    const crossoverData = this.findCrossoverAndMargins(loopGainData);
+    
+    return {
+      frequencies,
+      powerStage: powerStageData,
+      compensator: compensatorData,
+      loopGain: loopGainData,
+      crossover: crossoverData,
+      compensatorDesign: compensator
+    };
+  }
+  
+  // Calculate power stage frequency response (buck converter)
+  static calculatePowerStageResponse(s, Gdc, fc_lc, fz_esr, Qo) {
+    const wc = 2 * Math.PI * fc_lc;
+    const wz = 2 * Math.PI * fz_esr;
+    
+    // H(s) = Gdc * (1 + s/wz) / (1 + s/(Qo*wc) + (s/wc)^2)
+    const numerator = { real: 1, imag: s / wz };
+    const denominator = { 
+      real: 1 - (s / wc) * (s / wc), 
+      imag: s / (Qo * wc) 
+    };
+    
+    // Complex division
+    const denomMagSq = denominator.real * denominator.real + denominator.imag * denominator.imag;
+    const result = {
+      real: Gdc * (numerator.real * denominator.real + numerator.imag * denominator.imag) / denomMagSq,
+      imag: Gdc * (numerator.imag * denominator.real - numerator.real * denominator.imag) / denomMagSq
+    };
+    
+    return {
+      magnitude: Math.sqrt(result.real * result.real + result.imag * result.imag),
+      phase: Math.atan2(result.imag, result.real)
+    };
+  }
+  
+  // Calculate Type II compensator frequency response
+  static calculateType2CompensatorResponse(s, compensator) {
+    const wz = 2 * Math.PI * compensator.zeroFreq;
+    const wp = 2 * Math.PI * compensator.poleFreq;
+    
+    // Gc(s) = Gdc * (1 + s/wz) / (1 + s/wp)
+    const Gdc = 1; // Will be adjusted based on crossover requirement
+    
+    const numerator = { real: 1, imag: s / wz };
+    const denominator = { real: 1, imag: s / wp };
+    
+    const denomMagSq = denominator.real * denominator.real + denominator.imag * denominator.imag;
+    const result = {
+      real: Gdc * (numerator.real * denominator.real + numerator.imag * denominator.imag) / denomMagSq,
+      imag: Gdc * (numerator.imag * denominator.real - numerator.real * denominator.imag) / denomMagSq
+    };
+    
+    return {
+      magnitude: Math.sqrt(result.real * result.real + result.imag * result.imag),
+      phase: Math.atan2(result.imag, result.real)
+    };
+  }
+  
+  // Calculate Type III compensator frequency response
+  static calculateType3CompensatorResponse(s, compensator) {
+    const wz1 = 2 * Math.PI * compensator.zeroFreq1;
+    const wz2 = 2 * Math.PI * compensator.zeroFreq2;
+    const wp1 = 2 * Math.PI * compensator.poleFreq1;
+    const wp2 = 2 * Math.PI * compensator.poleFreq2;
+    
+    // Gc(s) = Gdc * (1 + s/wz1)(1 + s/wz2) / (s * (1 + s/wp1)(1 + s/wp2))
+    const Gdc = 1; // Will be adjusted based on crossover requirement
+    
+    // Numerator: (1 + s/wz1)(1 + s/wz2)
+    const num1 = { real: 1, imag: s / wz1 };
+    const num2 = { real: 1, imag: s / wz2 };
+    const numerator = {
+      real: num1.real * num2.real - num1.imag * num2.imag,
+      imag: num1.real * num2.imag + num1.imag * num2.real
+    };
+    
+    // Denominator: s * (1 + s/wp1)(1 + s/wp2)
+    const den1 = { real: 1, imag: s / wp1 };
+    const den2 = { real: 1, imag: s / wp2 };
+    const denPoles = {
+      real: den1.real * den2.real - den1.imag * den2.imag,
+      imag: den1.real * den2.imag + den1.imag * den2.real
+    };
+    const denominator = {
+      real: -s * denPoles.imag, // s * complex = (0 + js) * complex
+      imag: s * denPoles.real
+    };
+    
+    const denomMagSq = denominator.real * denominator.real + denominator.imag * denominator.imag;
+    const result = {
+      real: Gdc * (numerator.real * denominator.real + numerator.imag * denominator.imag) / denomMagSq,
+      imag: Gdc * (numerator.imag * denominator.real - numerator.real * denominator.imag) / denomMagSq
+    };
+    
+    return {
+      magnitude: Math.sqrt(result.real * result.real + result.imag * result.imag),
+      phase: Math.atan2(result.imag, result.real)
+    };
+  }
+  
+  // Find crossover frequency and stability margins
+  static findCrossoverAndMargins(loopGainData) {
+    let crossoverFreq = null;
+    let phaseMargin = null;
+    let gainMargin = null;
+    let gainMarginFreq = null;
+    
+    // Find crossover frequency (where magnitude = 0 dB)
+    for (let i = 1; i < loopGainData.length; i++) {
+      const prev = loopGainData[i - 1];
+      const curr = loopGainData[i];
+      
+      if (prev.magnitude > 0 && curr.magnitude <= 0) {
+        // Linear interpolation to find exact crossover
+        const ratio = -prev.magnitude / (curr.magnitude - prev.magnitude);
+        crossoverFreq = prev.frequency + ratio * (curr.frequency - prev.frequency);
+        
+        // Interpolate phase at crossover
+        const phaseAtCrossover = prev.phase + ratio * (curr.phase - prev.phase);
+        phaseMargin = 180 + phaseAtCrossover; // Phase margin = 180° + phase at crossover
+        break;
+      }
+    }
+    
+    // Find gain margin (magnitude at -180° phase)
+    for (let i = 1; i < loopGainData.length; i++) {
+      const prev = loopGainData[i - 1];
+      const curr = loopGainData[i];
+      
+      if ((prev.phase > -180 && curr.phase <= -180) || 
+          (prev.phase < -180 && curr.phase >= -180)) {
+        // Linear interpolation to find exact -180° frequency
+        const ratio = (-180 - prev.phase) / (curr.phase - prev.phase);
+        gainMarginFreq = prev.frequency + ratio * (curr.frequency - prev.frequency);
+        
+        // Interpolate magnitude at -180°
+        const magAt180 = prev.magnitude + ratio * (curr.magnitude - prev.magnitude);
+        gainMargin = -magAt180; // Gain margin is negative of magnitude at -180°
+        break;
+      }
+    }
+    
+    return {
+      crossoverFreq: crossoverFreq,
+      phaseMargin: phaseMargin,
+      gainMargin: gainMargin,
+      gainMarginFreq: gainMarginFreq
+    };
+  }
+  
   // Convert to standard component values
   static standardValue(value, unit = 'Ω') {
     const e12_series = [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2];
@@ -569,6 +786,17 @@ app.post('/api/compensation/type2', (req, res) => {
 app.post('/api/compensation/type3', (req, res) => {
   try {
     const result = CompensationDesign.designTypeIII(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Bode plot generation route
+app.post('/api/compensation/bode', (req, res) => {
+  try {
+    const { compensatorType, ...params } = req.body;
+    const result = CompensationDesign.generateBodePlot(params, compensatorType);
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
