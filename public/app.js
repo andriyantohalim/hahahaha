@@ -808,7 +808,359 @@ function displayCompensationResults(result) {
     html += '</div>';
     
     resultsDiv.innerHTML = html;
+    
+    // Generate Bode plot after displaying results
+    generateBodePlot();
 }
+
+// Global variables for Bode plots
+let magnitudeChart = null;
+let phaseChart = null;
+let bodeData = null;
+
+// Generate and display Bode plot
+async function generateBodePlot() {
+    const compensatorType = document.getElementById('compensatorType').value;
+    
+    try {
+        // Collect parameters (same as compensation calculation)
+        const params = {
+            Vin: parseFloat(document.getElementById('compVin').value),
+            Vout: parseFloat(document.getElementById('compVout').value),
+            fsw: parseFloat(document.getElementById('compFsw').value) * 1000, // Convert to Hz
+            L: parseFloat(document.getElementById('compL').value) * 1e-6, // Convert to H
+            C: parseFloat(document.getElementById('compC').value) * 1e-6, // Convert to F
+            ESR: parseFloat(document.getElementById('compESR').value) * 1e-3, // Convert to Ω
+            loadCurrent: parseFloat(document.getElementById('compLoadCurrent').value),
+            compensatorType: compensatorType
+        };
+        
+        // Make API call for Bode plot data
+        const response = await fetch('/api/compensation/bode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(params)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Bode plot generation failed');
+        }
+        
+        bodeData = await response.json();
+        
+        // Create the plots
+        createBodePlots();
+        updateStabilityMargins();
+        
+    } catch (error) {
+        console.error('Error generating Bode plot:', error);
+    }
+}
+
+// Create Bode plot charts
+function createBodePlots() {
+    if (!bodeData) return;
+    
+    // Destroy existing charts
+    if (magnitudeChart) {
+        magnitudeChart.destroy();
+    }
+    if (phaseChart) {
+        phaseChart.destroy();
+    }
+    
+    // Prepare datasets
+    const datasets = [];
+    
+    // Power Stage dataset
+    if (document.getElementById('showPowerStage').checked) {
+        datasets.push({
+            label: 'Power Stage',
+            data: bodeData.powerStage.map(point => ({
+                x: point.frequency,
+                y: point.magnitude
+            })),
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+        });
+    }
+    
+    // Compensator dataset
+    if (document.getElementById('showCompensator').checked) {
+        datasets.push({
+            label: 'Compensator',
+            data: bodeData.compensator.map(point => ({
+                x: point.frequency,
+                y: point.magnitude
+            })),
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+        });
+    }
+    
+    // Loop Gain dataset
+    if (document.getElementById('showLoopGain').checked) {
+        datasets.push({
+            label: 'Loop Gain',
+            data: bodeData.loopGain.map(point => ({
+                x: point.frequency,
+                y: point.magnitude
+            })),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 3,
+            fill: false,
+            pointRadius: 0
+        });
+    }
+    
+    // Create magnitude plot
+    const magCtx = document.getElementById('magnitudePlot').getContext('2d');
+    magnitudeChart = new Chart(magCtx, {
+        type: 'line',
+        data: { datasets: datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'logarithmic',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Frequency (Hz)'
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Magnitude (dB)'
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        title: function(context) {
+                            return `Frequency: ${context[0].parsed.x.toFixed(1)} Hz`;
+                        },
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed.y.toFixed(1)} dB`;
+                        }
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            }
+        }
+    });
+    
+    // Prepare phase datasets
+    const phaseDatasets = [];
+    
+    if (document.getElementById('showPowerStage').checked) {
+        phaseDatasets.push({
+            label: 'Power Stage',
+            data: bodeData.powerStage.map(point => ({
+                x: point.frequency,
+                y: point.phase
+            })),
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+        });
+    }
+    
+    if (document.getElementById('showCompensator').checked) {
+        phaseDatasets.push({
+            label: 'Compensator',
+            data: bodeData.compensator.map(point => ({
+                x: point.frequency,
+                y: point.phase
+            })),
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+        });
+    }
+    
+    if (document.getElementById('showLoopGain').checked) {
+        phaseDatasets.push({
+            label: 'Loop Gain',
+            data: bodeData.loopGain.map(point => ({
+                x: point.frequency,
+                y: point.phase
+            })),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 3,
+            fill: false,
+            pointRadius: 0
+        });
+    }
+    
+    // Create phase plot
+    const phaseCtx = document.getElementById('phasePlot').getContext('2d');
+    phaseChart = new Chart(phaseCtx, {
+        type: 'line',
+        data: { datasets: phaseDatasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'logarithmic',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Frequency (Hz)'
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Phase (degrees)'
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    },
+                    min: -270,
+                    max: 90
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        title: function(context) {
+                            return `Frequency: ${context[0].parsed.x.toFixed(1)} Hz`;
+                        },
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}°`;
+                        }
+                    }
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            }
+        }
+    });
+}
+
+// Update stability margins display
+function updateStabilityMargins() {
+    if (!bodeData || !bodeData.crossover) return;
+    
+    const crossover = bodeData.crossover;
+    
+    // Update crossover frequency
+    const crossoverFreqEl = document.getElementById('crossoverFreq');
+    if (crossover.crossoverFreq) {
+        crossoverFreqEl.textContent = `${(crossover.crossoverFreq / 1000).toFixed(1)} kHz`;
+        crossoverFreqEl.className = 'fw-bold text-success';
+    } else {
+        crossoverFreqEl.textContent = 'Not found';
+        crossoverFreqEl.className = 'fw-bold text-warning';
+    }
+    
+    // Update phase margin
+    const phaseMarginEl = document.getElementById('phaseMargin');
+    if (crossover.phaseMargin !== null) {
+        const phaseMargin = crossover.phaseMargin;
+        phaseMarginEl.textContent = `${phaseMargin.toFixed(1)}°`;
+        
+        if (phaseMargin >= 45) {
+            phaseMarginEl.className = 'fw-bold text-success';
+        } else if (phaseMargin >= 30) {
+            phaseMarginEl.className = 'fw-bold text-warning';
+        } else {
+            phaseMarginEl.className = 'fw-bold text-danger';
+        }
+    } else {
+        phaseMarginEl.textContent = 'N/A';
+        phaseMarginEl.className = 'fw-bold text-muted';
+    }
+    
+    // Update gain margin
+    const gainMarginEl = document.getElementById('gainMargin');
+    if (crossover.gainMargin !== null) {
+        const gainMargin = crossover.gainMargin;
+        gainMarginEl.textContent = `${gainMargin.toFixed(1)} dB`;
+        
+        if (gainMargin >= 6) {
+            gainMarginEl.className = 'fw-bold text-success';
+        } else if (gainMargin >= 3) {
+            gainMarginEl.className = 'fw-bold text-warning';
+        } else {
+            gainMarginEl.className = 'fw-bold text-danger';
+        }
+    } else {
+        gainMarginEl.textContent = 'N/A';
+        gainMarginEl.className = 'fw-bold text-muted';
+    }
+}
+
+// Add event listeners for Bode plot toggles
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for plot visibility toggles
+    ['showPowerStage', 'showCompensator', 'showLoopGain'].forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', function() {
+                if (bodeData) {
+                    createBodePlots();
+                }
+            });
+        }
+    });
+    
+    // Add event listener for compensator type change to update Bode plot
+    const compensatorTypeSelect = document.getElementById('compensatorType');
+    if (compensatorTypeSelect) {
+        compensatorTypeSelect.addEventListener('change', function() {
+            // Regenerate Bode plot if compensation has been calculated
+            if (bodeData) {
+                generateBodePlot();
+            }
+        });
+    }
+});
 
 // Event listeners
 document.getElementById('coreMaterial').addEventListener('change', updateMaterialProperties);

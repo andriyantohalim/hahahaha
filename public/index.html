@@ -234,6 +234,60 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Bode Plot Visualization -->
+                        <div class="card mt-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6>Bode Plot Analysis</h6>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <input type="checkbox" class="btn-check" id="showPowerStage" checked>
+                                    <label class="btn btn-outline-primary" for="showPowerStage">Power Stage</label>
+                                    
+                                    <input type="checkbox" class="btn-check" id="showCompensator" checked>
+                                    <label class="btn btn-outline-success" for="showCompensator">Compensator</label>
+                                    
+                                    <input type="checkbox" class="btn-check" id="showLoopGain" checked>
+                                    <label class="btn btn-outline-danger" for="showLoopGain">Loop Gain</label>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="bodeplotContainer">
+                                    <!-- Magnitude Plot -->
+                                    <div class="mb-4">
+                                        <h6 class="text-center">Magnitude Response</h6>
+                                        <canvas id="magnitudePlot" width="800" height="300"></canvas>
+                                    </div>
+                                    
+                                    <!-- Phase Plot -->
+                                    <div>
+                                        <h6 class="text-center">Phase Response</h6>
+                                        <canvas id="phasePlot" width="800" height="300"></canvas>
+                                    </div>
+                                    
+                                    <!-- Stability Margins Display -->
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="text-center p-2 bg-light rounded">
+                                                <small class="text-muted">Crossover Frequency</small>
+                                                <div class="fw-bold" id="crossoverFreq">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center p-2 bg-light rounded">
+                                                <small class="text-muted">Phase Margin</small>
+                                                <div class="fw-bold" id="phaseMargin">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center p-2 bg-light rounded">
+                                                <small class="text-muted">Gain Margin</small>
+                                                <div class="fw-bold" id="gainMargin">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
