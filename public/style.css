@@ -202,3 +202,124 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Tab styling */
+.nav-tabs-dark .nav-link {
+    border: 1px solid transparent;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-tabs-dark .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-tabs-dark .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    border-bottom-color: transparent;
+}
+
+/* Part recommendations table */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table-success {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.table-success:hover {
+    background-color: rgba(25, 135, 84, 0.2) !important;
+}
+
+/* Compensation circuit styling */
+#compensationChart {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Enhanced card borders */
+.card.border-success {
+    border-color: #198754 !important;
+}
+
+.card.border-primary {
+    border-color: #0d6efd !important;
+}
+
+.card.border-info {
+    border-color: #0dcaf0 !important;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Result value enhancements */
+.result-value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+/* Responsive table */
+.table-responsive {
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+/* Enhanced alert styling */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.alert-info {
+    background-color: #cff4fc;
+    color: #055160;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Tab content padding */
+.tab-content {
+    padding-top: 1rem;
+}
+
+/* Enhanced form styling */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+/* Part recommendation score styling */
+.badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+/* Compensation results styling */
+.compensationResults .card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.compensationResults .card:hover {
+    transform: translateY(-2px);
+}
+
+/* Enhanced button styling */
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+    font-weight: 500;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}

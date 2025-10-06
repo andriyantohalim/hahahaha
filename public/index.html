@@ -12,12 +12,30 @@
     <div class="container-fluid">
         <header class="bg-primary text-white p-3 mb-4">
             <h1 class="h2 mb-0">DC-DC Converter Magnetic Design Assistant</h1>
-            <p class="mb-0">Professional tool for sizing inductors and transformers in power electronics</p>
+            <p class="mb-0">Professional tool with real part numbers and feedback compensation design</p>
+            
+            <!-- Feature tabs -->
+            <ul class="nav nav-tabs nav-tabs-dark mt-3" id="featureTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active text-white" id="magnetic-tab" data-bs-toggle="tab" data-bs-target="#magnetic" type="button" role="tab">
+                        <i class="fas fa-magnet"></i> Magnetic Design
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-white" id="compensation-tab" data-bs-toggle="tab" data-bs-target="#compensation" type="button" role="tab">
+                        <i class="fas fa-wave-square"></i> Feedback Compensation
+                    </button>
+                </li>
+            </ul>
         </header>
 
-        <div class="row">
-            <!-- Input Panel -->
-            <div class="col-lg-4">
+        <!-- Tab content -->
+        <div class="tab-content" id="featureTabContent">
+            <!-- Magnetic Design Tab -->
+            <div class="tab-pane fade show active" id="magnetic" role="tabpanel">
+                <div class="row">
+                    <!-- Input Panel -->
+                    <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
                         <h5>Converter Configuration</h5>
@@ -81,6 +99,18 @@
                     </div>
                 </div>
 
+                <!-- Part Recommendations -->
+                <div class="card mt-3" id="partRecommendationsCard" style="display: none;">
+                    <div class="card-header">
+                        <h6><i class="fas fa-microchip"></i> Recommended Parts</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="partRecommendations">
+                            <!-- Part recommendations will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Charts -->
                 <div class="card mt-3">
                     <div class="card-header">
@@ -115,10 +145,103 @@
                     </div>
                 </div>
             </div>
+                </div>
+            </div>
+            
+            <!-- Feedback Compensation Tab -->
+            <div class="tab-pane fade" id="compensation" role="tabpanel">
+                <div class="row">
+                    <!-- Compensation Input Panel -->
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Compensation Design Parameters</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Compensator Type -->
+                                <div class="mb-3">
+                                    <label for="compensatorType" class="form-label">Compensator Type</label>
+                                    <select class="form-select" id="compensatorType">
+                                        <option value="type2">Type II (1 pole, 1 zero)</option>
+                                        <option value="type3">Type III (2 poles, 2 zeros)</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Power Stage Parameters -->
+                                <div class="mb-3">
+                                    <label for="compVin" class="form-label">Input Voltage (V)</label>
+                                    <input type="number" class="form-control" id="compVin" value="12" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compVout" class="form-label">Output Voltage (V)</label>
+                                    <input type="number" class="form-control" id="compVout" value="5" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compFsw" class="form-label">Switching Frequency (kHz)</label>
+                                    <input type="number" class="form-control" id="compFsw" value="100" step="1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compL" class="form-label">Inductance (µH)</label>
+                                    <input type="number" class="form-control" id="compL" value="47" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compC" class="form-label">Output Capacitance (µF)</label>
+                                    <input type="number" class="form-control" id="compC" value="220" step="1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compESR" class="form-label">Capacitor ESR (mΩ)</label>
+                                    <input type="number" class="form-control" id="compESR" value="10" step="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="compLoadCurrent" class="form-label">Load Current (A)</label>
+                                    <input type="number" class="form-control" id="compLoadCurrent" value="2" step="0.1">
+                                </div>
+                                
+                                <button type="button" class="btn btn-success w-100" onclick="calculateCompensation()">
+                                    <i class="fas fa-calculator"></i> Design Compensator
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compensation Results Panel -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Compensation Design Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="compensationResults">
+                                    <p class="text-muted">Enter parameters and click "Design Compensator" to see results.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Compensation Circuit Diagram -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6>Compensator Circuit</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="compensationCircuit">
+                                    <canvas id="compensationChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

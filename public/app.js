@@ -491,6 +491,11 @@ function displayResults(result, converterType) {
     }
     
     resultsDiv.innerHTML = html;
+    
+    // Display part recommendations if available
+    if (result.partRecommendations && result.partRecommendations.length > 0) {
+        displayPartRecommendations(result.partRecommendations);
+    }
 }
 
 // Update charts
@@ -592,6 +597,217 @@ function updateLossChart(result) {
             }
         }
     });
+}
+
+// Display part recommendations
+function displayPartRecommendations(recommendations) {
+    const partRecommendationsCard = document.getElementById('partRecommendationsCard');
+    const partRecommendationsDiv = document.getElementById('partRecommendations');
+    
+    let html = '<div class="table-responsive">';
+    html += '<table class="table table-sm table-hover">';
+    html += '<thead class="table-dark">';
+    html += '<tr>';
+    html += '<th>Part Number</th>';
+    html += '<th>Manufacturer</th>';
+    html += '<th>Package</th>';
+    html += '<th>Value</th>';
+    html += '<th>Current</th>';
+    html += '<th>DCR</th>';
+    html += '<th>Score</th>';
+    html += '</tr>';
+    html += '</thead>';
+    html += '<tbody>';
+    
+    recommendations.forEach((part, index) => {
+        const rowClass = index === 0 ? 'table-success' : '';
+        html += `<tr class="${rowClass}">`;
+        html += `<td><strong>${part.partNumber}</strong></td>`;
+        html += `<td>${part.manufacturer}</td>`;
+        html += `<td>${part.package}</td>`;
+        
+        if (part.inductance) {
+            html += `<td>${part.inductance} µH</td>`;
+            html += `<td>${part.current} A</td>`;
+            html += `<td>${part.dcr} Ω</td>`;
+        } else {
+            html += `<td>${part.primaryInductance} µH</td>`;
+            html += `<td>${part.turnsRatio}:1</td>`;
+            html += `<td>${part.leakageInductance} µH</td>`;
+        }
+        
+        html += `<td><span class="badge bg-primary">${part.score}</span></td>`;
+        html += '</tr>';
+    });
+    
+    html += '</tbody>';
+    html += '</table>';
+    html += '</div>';
+    
+    if (recommendations.length > 0) {
+        html += '<div class="alert alert-info mt-2">';
+        html += '<small><i class="fas fa-info-circle"></i> ';
+        html += 'Recommendations are sorted by suitability score. Green row shows the best match.';
+        html += '</small>';
+        html += '</div>';
+    }
+    
+    partRecommendationsDiv.innerHTML = html;
+    partRecommendationsCard.style.display = 'block';
+}
+
+// Calculate compensation design
+async function calculateCompensation() {
+    const compensatorType = document.getElementById('compensatorType').value;
+    const resultsDiv = document.getElementById('compensationResults');
+    
+    // Show loading
+    resultsDiv.innerHTML = '<div class="text-center"><div class="spinner"></div><p>Designing compensator...</p></div>';
+    
+    try {
+        // Collect parameters
+        const params = {
+            Vin: parseFloat(document.getElementById('compVin').value),
+            Vout: parseFloat(document.getElementById('compVout').value),
+            fsw: parseFloat(document.getElementById('compFsw').value) * 1000, // Convert to Hz
+            L: parseFloat(document.getElementById('compL').value) * 1e-6, // Convert to H
+            C: parseFloat(document.getElementById('compC').value) * 1e-6, // Convert to F
+            ESR: parseFloat(document.getElementById('compESR').value) * 1e-3, // Convert to Ω
+            loadCurrent: parseFloat(document.getElementById('compLoadCurrent').value)
+        };
+        
+        // Make API call
+        const response = await fetch(`/api/compensation/${compensatorType}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(params)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Compensation design failed');
+        }
+        
+        const result = await response.json();
+        displayCompensationResults(result);
+        
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error:</strong> ${error.message}
+            </div>
+        `;
+    }
+}
+
+// Display compensation results
+function displayCompensationResults(result) {
+    const resultsDiv = document.getElementById('compensationResults');
+    
+    let html = '<div class="row">';
+    
+    // Compensator summary
+    html += '<div class="col-md-6">';
+    html += '<div class="card border-success">';
+    html += '<div class="card-header bg-success text-white">';
+    html += `<h6 class="mb-0">${result.type} Compensator</h6>`;
+    html += '</div>';
+    html += '<div class="card-body">';
+    
+    html += '<div class="mb-2">';
+    html += '<div class="result-label">Crossover Frequency</div>';
+    html += `<div class="result-value">${(result.crossoverFreq / 1000).toFixed(1)}<span class="result-unit">kHz</span></div>`;
+    html += '</div>';
+    
+    html += '<div class="mb-2">';
+    html += '<div class="result-label">Phase Margin</div>';
+    html += `<div class="result-value">${result.performance.phaseMargin}<span class="result-unit">°</span></div>`;
+    html += '</div>';
+    
+    html += '<div class="mb-2">';
+    html += '<div class="result-label">Gain Margin</div>';
+    html += `<div class="result-value">${result.performance.gainMargin}<span class="result-unit">dB</span></div>`;
+    html += '</div>';
+    
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Component values
+    html += '<div class="col-md-6">';
+    html += '<div class="card border-primary">';
+    html += '<div class="card-header bg-primary text-white">';
+    html += '<h6 class="mb-0">Component Values</h6>';
+    html += '</div>';
+    html += '<div class="card-body">';
+    
+    Object.entries(result.components).forEach(([component, value]) => {
+        html += '<div class="mb-2">';
+        html += `<div class="result-label">${component}</div>`;
+        html += `<div class="result-value">${value}</div>`;
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    html += '</div>';
+    
+    // Power stage analysis
+    html += '<div class="card mt-3 border-info">';
+    html += '<div class="card-header bg-info text-white">';
+    html += '<h6 class="mb-0">Power Stage Analysis</h6>';
+    html += '</div>';
+    html += '<div class="card-body">';
+    html += '<div class="row">';
+    
+    html += '<div class="col-md-4">';
+    html += '<div class="mb-2">';
+    html += '<div class="result-label">LC Corner Frequency</div>';
+    html += `<div class="result-value">${(result.powerStage.lcCorner / 1000).toFixed(1)}<span class="result-unit">kHz</span></div>`;
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="col-md-4">';
+    html += '<div class="mb-2">';
+    html += '<div class="result-label">ESR Zero Frequency</div>';
+    html += `<div class="result-value">${(result.powerStage.esrZero / 1000).toFixed(1)}<span class="result-unit">kHz</span></div>`;
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="col-md-4">';
+    html += '<div class="mb-2">';
+    html += '<div class="result-label">Quality Factor</div>';
+    html += `<div class="result-value">${result.powerStage.qualityFactor}</div>`;
+    html += '</div>';
+    html += '</div>';
+    
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Frequency response information
+    html += '<div class="alert alert-info mt-3">';
+    html += '<h6><i class="fas fa-info-circle"></i> Design Notes</h6>';
+    html += '<ul class="mb-0">';
+    
+    if (result.type === 'Type II') {
+        html += '<li>Type II compensator provides adequate phase margin for most applications</li>';
+        html += '<li>Zero placed below LC corner frequency to boost phase</li>';
+        html += '<li>Pole placed above ESR zero to maintain stability</li>';
+    } else {
+        html += '<li>Type III compensator provides higher bandwidth and better transient response</li>';
+        html += '<li>Two zeros provide more aggressive phase boost</li>';
+        html += '<li>Second pole prevents high-frequency noise amplification</li>';
+    }
+    
+    html += `<li>Crossover frequency set to ${(result.crossoverFreq / result.performance.bandwidth * 100).toFixed(0)}% of switching frequency</li>`;
+    html += '</ul>';
+    html += '</div>';
+    
+    resultsDiv.innerHTML = html;
 }
 
 // Event listeners

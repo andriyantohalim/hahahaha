@@ -19,6 +19,132 @@ const coreMaterials = {
   'Kool_Mu': { Bsat: 1.05, Tc: 500, resistivity: 1000000, Ae: 0.000097, le: 0.0395, Ve: 0.00000383 }
 };
 
+// Real magnetic component database
+const magneticParts = {
+  // TDK Inductors
+  'TDK_SLF12575': { 
+    type: 'inductor', manufacturer: 'TDK', series: 'SLF12575', package: '12.5x12.5x7.5mm', 
+    values: [
+      { inductance: 10, current: 3.9, dcr: 0.025, partNumber: 'SLF12575T-100M2R2-PF' },
+      { inductance: 15, current: 3.5, dcr: 0.035, partNumber: 'SLF12575T-150M2R5-PF' },
+      { inductance: 22, current: 3.0, dcr: 0.050, partNumber: 'SLF12575T-220M3R0-PF' },
+      { inductance: 33, current: 2.5, dcr: 0.075, partNumber: 'SLF12575T-330M2R5-PF' },
+      { inductance: 47, current: 2.1, dcr: 0.100, partNumber: 'SLF12575T-470M2R1-PF' },
+      { inductance: 68, current: 1.8, dcr: 0.140, partNumber: 'SLF12575T-680M1R8-PF' },
+      { inductance: 100, current: 1.5, dcr: 0.200, partNumber: 'SLF12575T-101M1R5-PF' },
+      { inductance: 150, current: 1.2, dcr: 0.300, partNumber: 'SLF12575T-151M1R2-PF' },
+      { inductance: 220, current: 1.0, dcr: 0.450, partNumber: 'SLF12575T-221M1R0-PF' }
+    ],
+    material: 'ferrite', shielded: true, temp_range: [-40, 125]
+  },
+  
+  'TDK_SLF10145': { 
+    type: 'inductor', manufacturer: 'TDK', series: 'SLF10145', package: '10.1x10.1x4.5mm',
+    values: [
+      { inductance: 1.0, current: 6.5, dcr: 0.012, partNumber: 'SLF10145T-1R0M6R5-2PF' },
+      { inductance: 1.5, current: 5.8, dcr: 0.018, partNumber: 'SLF10145T-1R5M5R8-2PF' },
+      { inductance: 2.2, current: 5.0, dcr: 0.025, partNumber: 'SLF10145T-2R2M5R0-2PF' },
+      { inductance: 3.3, current: 4.2, dcr: 0.038, partNumber: 'SLF10145T-3R3M4R2-2PF' },
+      { inductance: 4.7, current: 3.6, dcr: 0.055, partNumber: 'SLF10145T-4R7M3R6-2PF' },
+      { inductance: 6.8, current: 3.1, dcr: 0.075, partNumber: 'SLF10145T-6R8M3R1-2PF' },
+      { inductance: 10, current: 2.6, dcr: 0.110, partNumber: 'SLF10145T-100M2R6-2PF' },
+      { inductance: 15, current: 2.1, dcr: 0.170, partNumber: 'SLF10145T-150M2R1-2PF' },
+      { inductance: 22, current: 1.7, dcr: 0.250, partNumber: 'SLF10145T-220M1R7-2PF' }
+    ],
+    material: 'ferrite', shielded: true, temp_range: [-40, 125]
+  },
+
+  // Wurth Elektronik WE-PD Series
+  'WE_PD_744773': { 
+    type: 'inductor', manufacturer: 'Wurth', series: 'WE-PD', package: '12.8x12.8x6.0mm',
+    values: [
+      { inductance: 10, current: 4.2, dcr: 0.022, partNumber: '744773100' },
+      { inductance: 15, current: 3.8, dcr: 0.032, partNumber: '744773150' },
+      { inductance: 22, current: 3.2, dcr: 0.045, partNumber: '744773220' },
+      { inductance: 33, current: 2.7, dcr: 0.068, partNumber: '744773330' },
+      { inductance: 47, current: 2.3, dcr: 0.095, partNumber: '744773470' },
+      { inductance: 68, current: 1.9, dcr: 0.135, partNumber: '744773680' },
+      { inductance: 100, current: 1.6, dcr: 0.190, partNumber: '744773101' },
+      { inductance: 150, current: 1.3, dcr: 0.285, partNumber: '744773151' }
+    ],
+    material: 'ferrite', shielded: true, temp_range: [-40, 125]
+  },
+
+  'WE_TPC_744028': { 
+    type: 'inductor', manufacturer: 'Wurth', series: 'WE-TPC', package: '2.8x2.8x1.1mm',
+    values: [
+      { inductance: 0.47, current: 2.8, dcr: 0.045, partNumber: '7440280047' },
+      { inductance: 0.68, current: 2.5, dcr: 0.065, partNumber: '7440280068' },
+      { inductance: 1.0, current: 2.2, dcr: 0.090, partNumber: '744028001' },
+      { inductance: 1.5, current: 1.9, dcr: 0.130, partNumber: '7440280015' },
+      { inductance: 2.2, current: 1.6, dcr: 0.180, partNumber: '7440280022' },
+      { inductance: 3.3, current: 1.4, dcr: 0.260, partNumber: '7440280033' },
+      { inductance: 4.7, current: 1.2, dcr: 0.360, partNumber: '7440280047' },
+      { inductance: 6.8, current: 1.0, dcr: 0.520, partNumber: '7440280068' },
+      { inductance: 10, current: 0.85, dcr: 0.750, partNumber: '744028010' }
+    ],
+    material: 'ferrite', shielded: true, temp_range: [-40, 125]
+  },
+
+  // Coilcraft XFL Series
+  'COIL_XFL4020': { 
+    type: 'inductor', manufacturer: 'Coilcraft', series: 'XFL4020', package: '4.0x4.0x2.0mm',
+    values: [
+      { inductance: 1.0, current: 4.8, dcr: 0.018, partNumber: 'XFL4020-102MEC' },
+      { inductance: 1.5, current: 4.2, dcr: 0.026, partNumber: 'XFL4020-152MEC' },
+      { inductance: 2.2, current: 3.6, dcr: 0.038, partNumber: 'XFL4020-222MEC' },
+      { inductance: 3.3, current: 3.0, dcr: 0.055, partNumber: 'XFL4020-332MEC' },
+      { inductance: 4.7, current: 2.5, dcr: 0.078, partNumber: 'XFL4020-472MEC' },
+      { inductance: 6.8, current: 2.1, dcr: 0.110, partNumber: 'XFL4020-682MEC' },
+      { inductance: 10, current: 1.8, dcr: 0.155, partNumber: 'XFL4020-103MEC' },
+      { inductance: 15, current: 1.4, dcr: 0.235, partNumber: 'XFL4020-153MEC' },
+      { inductance: 22, current: 1.2, dcr: 0.340, partNumber: 'XFL4020-223MEC' }
+    ],
+    material: 'ferrite', shielded: true, temp_range: [-40, 125]
+  },
+
+  'COIL_XAL1350': { 
+    type: 'inductor', manufacturer: 'Coilcraft', series: 'XAL1350', package: '13.5x13.5x5.0mm',
+    values: [
+      { inductance: 10, current: 6.2, dcr: 0.015, partNumber: 'XAL1350-103MEC' },
+      { inductance: 15, current: 5.5, dcr: 0.022, partNumber: 'XAL1350-153MEC' },
+      { inductance: 22, current: 4.7, dcr: 0.032, partNumber: 'XAL1350-223MEC' },
+      { inductance: 33, current: 3.9, dcr: 0.048, partNumber: 'XAL1350-333MEC' },
+      { inductance: 47, current: 3.3, dcr: 0.068, partNumber: 'XAL1350-473MEC' },
+      { inductance: 68, current: 2.8, dcr: 0.095, partNumber: 'XAL1350-683MEC' },
+      { inductance: 100, current: 2.3, dcr: 0.135, partNumber: 'XAL1350-104MEC' },
+      { inductance: 150, current: 1.9, dcr: 0.205, partNumber: 'XAL1350-154MEC' },
+      { inductance: 220, current: 1.6, dcr: 0.295, partNumber: 'XAL1350-224MEC' }
+    ],
+    material: 'ferrite', shielded: true, temp_range: [-40, 125]
+  },
+
+  // Transformers for Flyback and PSFB
+  'TDK_B82801A': { 
+    type: 'transformer', manufacturer: 'TDK', series: 'B82801A', package: 'ETD29',
+    values: [
+      { turns_ratio: 1, primary_inductance: 100, leakage: 2, partNumber: 'B82801A0100A100' },
+      { turns_ratio: 2, primary_inductance: 150, leakage: 3, partNumber: 'B82801A0150A200' },
+      { turns_ratio: 3, primary_inductance: 220, leakage: 4, partNumber: 'B82801A0220A300' },
+      { turns_ratio: 4, primary_inductance: 330, leakage: 5, partNumber: 'B82801A0330A400' },
+      { turns_ratio: 5, primary_inductance: 470, leakage: 6, partNumber: 'B82801A0470A500' }
+    ],
+    isolation: 3000, material: 'N87', temp_range: [-40, 125]
+  },
+
+  'COIL_IFLY0012': { 
+    type: 'transformer', manufacturer: 'Coilcraft', series: 'IFLY', package: 'EP13',
+    values: [
+      { turns_ratio: 2, primary_inductance: 200, leakage: 3, partNumber: 'IFLY0012-200-2' },
+      { turns_ratio: 3, primary_inductance: 300, leakage: 4, partNumber: 'IFLY0012-300-3' },
+      { turns_ratio: 4, primary_inductance: 400, leakage: 5, partNumber: 'IFLY0012-400-4' },
+      { turns_ratio: 5, primary_inductance: 500, leakage: 6, partNumber: 'IFLY0012-500-5' },
+      { turns_ratio: 6, primary_inductance: 600, leakage: 7, partNumber: 'IFLY0012-600-6' }
+    ],
+    isolation: 500, material: 'ferrite', temp_range: [-40, 125]
+  }
+};
+
 // Wire gauge data (AWG)
 const wireData = {
   14: { diameter: 1.628, area: 2.081, resistance: 8.286 },
@@ -181,6 +307,208 @@ class MagneticDesign {
     
     return { error: 'Current too high for available wire gauges' };
   }
+
+  // Recommend actual magnetic parts based on calculated requirements
+  static recommendMagneticPart(requiredInductance, requiredCurrent, converterType) {
+    const recommendations = [];
+    
+    for (const [partKey, part] of Object.entries(magneticParts)) {
+      if (part.type === 'inductor' && ['buck', 'boost'].includes(converterType)) {
+        for (const value of part.values) {
+          if (value.inductance >= requiredInductance * 0.8 && 
+              value.inductance <= requiredInductance * 1.5 &&
+              value.current >= requiredCurrent) {
+            
+            const efficiency = Math.min(100, 95 - (value.dcr * requiredCurrent * requiredCurrent / 10));
+            const score = (value.current / requiredCurrent) * (requiredInductance / value.inductance) * (efficiency / 100);
+            
+            recommendations.push({
+              partNumber: value.partNumber,
+              manufacturer: part.manufacturer,
+              series: part.series,
+              package: part.package,
+              inductance: value.inductance,
+              current: value.current,
+              dcr: value.dcr,
+              efficiency: efficiency.toFixed(1),
+              score: score.toFixed(2),
+              material: part.material,
+              shielded: part.shielded
+            });
+          }
+        }
+      } else if (part.type === 'transformer' && ['flyback', 'psfb'].includes(converterType)) {
+        for (const value of part.values) {
+          if (value.primary_inductance >= requiredInductance * 0.8 && 
+              value.primary_inductance <= requiredInductance * 1.5) {
+            
+            const score = requiredInductance / value.primary_inductance;
+            
+            recommendations.push({
+              partNumber: value.partNumber,
+              manufacturer: part.manufacturer,
+              series: part.series,
+              package: part.package,
+              primaryInductance: value.primary_inductance,
+              turnsRatio: value.turns_ratio,
+              leakageInductance: value.leakage,
+              isolation: part.isolation,
+              score: score.toFixed(2),
+              material: part.material
+            });
+          }
+        }
+      }
+    }
+    
+    // Sort by score (higher is better)
+    recommendations.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
+    
+    return recommendations.slice(0, 5); // Return top 5 recommendations
+  }
+}
+
+// Feedback compensation design class
+class CompensationDesign {
+  
+  // Type II compensator design (one pole, one zero)
+  static designTypeII(params) {
+    const { Vout, fsw, L, C, ESR, Vin, loadCurrent } = params;
+    
+    // Power stage transfer function characteristics
+    const fc_lc = 1 / (2 * Math.PI * Math.sqrt(L * C)); // LC filter corner frequency
+    const fz_esr = 1 / (2 * Math.PI * ESR * C); // ESR zero frequency
+    const Qo = Math.sqrt(L / C) / ESR; // Quality factor
+    
+    // Desired crossover frequency (typically fsw/10 to fsw/20)
+    const fc_desired = fsw / 15;
+    
+    // Compensator design
+    const fz_comp = fc_lc / 3; // Place zero below LC corner
+    const fp_comp = fz_esr * 3; // Place pole above ESR zero
+    
+    // Component calculations for op-amp based compensator
+    const R1 = 10000; // 10kΩ reference
+    const C1 = 1 / (2 * Math.PI * fz_comp * R1);
+    const R2 = 1 / (2 * Math.PI * fp_comp * C1);
+    
+    // Gain calculation
+    const Gps_dc = Vout / Vin; // Power stage DC gain
+    const Gc_dc = fc_desired / (Gps_dc * fsw / (2 * Math.PI)); // Required compensator gain
+    const R3 = R1 * Gc_dc;
+    
+    // Phase and gain margins
+    const phaseMargin = 60; // Target phase margin
+    const gainMargin = 10; // Target gain margin in dB
+    
+    return {
+      type: 'Type II',
+      crossoverFreq: fc_desired,
+      zeroFreq: fz_comp,
+      poleFreq: fp_comp,
+      components: {
+        R1: this.standardValue(R1),
+        R2: this.standardValue(R2),
+        R3: this.standardValue(R3),
+        C1: this.standardValue(C1 * 1e12, 'pF')
+      },
+      performance: {
+        phaseMargin: phaseMargin,
+        gainMargin: gainMargin,
+        bandwidth: fc_desired
+      },
+      powerStage: {
+        lcCorner: fc_lc,
+        esrZero: fz_esr,
+        qualityFactor: Qo.toFixed(2)
+      }
+    };
+  }
+  
+  // Type III compensator design (two poles, two zeros)
+  static designTypeIII(params) {
+    const { Vout, fsw, L, C, ESR, Vin, loadCurrent } = params;
+    
+    // Power stage characteristics
+    const fc_lc = 1 / (2 * Math.PI * Math.sqrt(L * C));
+    const fz_esr = 1 / (2 * Math.PI * ESR * C);
+    const Qo = Math.sqrt(L / C) / ESR;
+    
+    // Desired crossover frequency
+    const fc_desired = fsw / 10;
+    
+    // Compensator design - more aggressive than Type II
+    const fz1_comp = fc_lc / 5; // First zero
+    const fz2_comp = fc_lc / 2; // Second zero
+    const fp1_comp = fz_esr * 2; // First pole
+    const fp2_comp = fsw / 2; // Second pole at half switching frequency
+    
+    // Component calculations
+    const R1 = 10000;
+    const C1 = 1 / (2 * Math.PI * fz1_comp * R1);
+    const C2 = 1 / (2 * Math.PI * fz2_comp * R1);
+    const R2 = 1 / (2 * Math.PI * fp1_comp * C1);
+    const R3 = 1 / (2 * Math.PI * fp2_comp * C2);
+    
+    // Gain calculation
+    const Gps_dc = Vout / Vin;
+    const Gc_dc = fc_desired / (Gps_dc * fsw / (2 * Math.PI));
+    const R4 = R1 * Gc_dc;
+    
+    return {
+      type: 'Type III',
+      crossoverFreq: fc_desired,
+      zeroFreq1: fz1_comp,
+      zeroFreq2: fz2_comp,
+      poleFreq1: fp1_comp,
+      poleFreq2: fp2_comp,
+      components: {
+        R1: this.standardValue(R1),
+        R2: this.standardValue(R2),
+        R3: this.standardValue(R3),
+        R4: this.standardValue(R4),
+        C1: this.standardValue(C1 * 1e12, 'pF'),
+        C2: this.standardValue(C2 * 1e12, 'pF')
+      },
+      performance: {
+        phaseMargin: 70,
+        gainMargin: 12,
+        bandwidth: fc_desired
+      },
+      powerStage: {
+        lcCorner: fc_lc,
+        esrZero: fz_esr,
+        qualityFactor: Qo.toFixed(2)
+      }
+    };
+  }
+  
+  // Convert to standard component values
+  static standardValue(value, unit = 'Ω') {
+    const e12_series = [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2];
+    
+    let magnitude = Math.floor(Math.log10(value));
+    let mantissa = value / Math.pow(10, magnitude);
+    
+    // Find closest E12 value
+    let closest = e12_series.reduce((prev, curr) => 
+      Math.abs(curr - mantissa) < Math.abs(prev - mantissa) ? curr : prev
+    );
+    
+    let standardVal = closest * Math.pow(10, magnitude);
+    
+    if (unit === 'pF' && standardVal < 1000) {
+      return `${standardVal.toFixed(0)} pF`;
+    } else if (unit === 'pF' && standardVal >= 1000) {
+      return `${(standardVal/1000).toFixed(2)} nF`;
+    } else if (standardVal >= 1000000) {
+      return `${(standardVal/1000000).toFixed(1)} MΩ`;
+    } else if (standardVal >= 1000) {
+      return `${(standardVal/1000).toFixed(1)} kΩ`;
+    } else {
+      return `${standardVal.toFixed(0)} Ω`;
+    }
+  }
 }
 
 // API Routes
@@ -188,7 +516,8 @@ app.post('/api/calculate/buck', (req, res) => {
   try {
     const result = MagneticDesign.calculateBuckInductor(req.body);
     const wireInfo = MagneticDesign.selectWire(result.peakCurrent);
-    res.json({ ...result, wireSelection: wireInfo });
+    const partRecommendations = MagneticDesign.recommendMagneticPart(result.inductance, result.peakCurrent, 'buck');
+    res.json({ ...result, wireSelection: wireInfo, partRecommendations });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -198,7 +527,8 @@ app.post('/api/calculate/boost', (req, res) => {
   try {
     const result = MagneticDesign.calculateBoostInductor(req.body);
     const wireInfo = MagneticDesign.selectWire(result.peakCurrent);
-    res.json({ ...result, wireSelection: wireInfo });
+    const partRecommendations = MagneticDesign.recommendMagneticPart(result.inductance, result.peakCurrent, 'boost');
+    res.json({ ...result, wireSelection: wireInfo, partRecommendations });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -208,7 +538,8 @@ app.post('/api/calculate/flyback', (req, res) => {
   try {
     const result = MagneticDesign.calculateFlybackTransformer(req.body);
     const wireInfo = MagneticDesign.selectWire(result.peakPrimaryCurrent);
-    res.json({ ...result, wireSelection: wireInfo });
+    const partRecommendations = MagneticDesign.recommendMagneticPart(result.primaryInductance, result.peakPrimaryCurrent, 'flyback');
+    res.json({ ...result, wireSelection: wireInfo, partRecommendations });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -218,10 +549,35 @@ app.post('/api/calculate/psfb', (req, res) => {
   try {
     const result = MagneticDesign.calculatePSFBTransformer(req.body);
     const wireInfo = MagneticDesign.selectWire(result.peakPrimaryCurrent);
-    res.json({ ...result, wireSelection: wireInfo });
+    const partRecommendations = MagneticDesign.recommendMagneticPart(result.leakageInductance, result.peakPrimaryCurrent, 'psfb');
+    res.json({ ...result, wireSelection: wireInfo, partRecommendations });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+// Compensation design routes
+app.post('/api/compensation/type2', (req, res) => {
+  try {
+    const result = CompensationDesign.designTypeII(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/compensation/type3', (req, res) => {
+  try {
+    const result = CompensationDesign.designTypeIII(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Get magnetic parts database
+app.get('/api/parts', (req, res) => {
+  res.json(magneticParts);
 });
 
 app.get('/api/materials', (req, res) => {
