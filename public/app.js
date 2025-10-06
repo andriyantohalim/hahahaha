@@ -1162,5 +1162,237 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Switch Recommendation Functions
+async function recommendSwitches() {
+    try {
+        // Get input values
+        const topology = document.getElementById('switchTopology').value;
+        const inputVoltage = parseFloat(document.getElementById('switchInputVoltage').value);
+        const outputVoltage = parseFloat(document.getElementById('switchOutputVoltage').value);
+        const outputCurrent = parseFloat(document.getElementById('switchOutputCurrent').value);
+        const switchingFrequency = parseFloat(document.getElementById('switchFrequency').value);
+        const efficiency = parseFloat(document.getElementById('switchEfficiency').value);
+        const costPriority = document.getElementById('switchCostPriority').value;
+
+        // Validate inputs
+        if (!topology || !inputVoltage || !outputVoltage || !outputCurrent || !switchingFrequency) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        // Show loading state
+        const resultsDiv = document.getElementById('switchResults');
+        resultsDiv.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Analyzing requirements and finding optimal switches...</p>
+            </div>
+        `;
+
+        // Make API call
+        const response = await fetch('/api/switches/recommend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                topology,
+                inputVoltage,
+                outputVoltage,
+                outputCurrent,
+                switchingFrequency,
+                efficiency,
+                costPriority
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        displaySwitchRecommendations(data);
+
+    } catch (error) {
+        console.error('Error getting switch recommendations:', error);
+        document.getElementById('switchResults').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Error getting switch recommendations: ${error.message}
+            </div>
+        `;
+    }
+}
+
+function displaySwitchRecommendations(data) {
+    const resultsDiv = document.getElementById('switchResults');
+    const analysisDiv = document.getElementById('switchAnalysis');
+    const analysisCard = document.getElementById('switchAnalysisCard');
+
+    if (!data.recommendations || data.recommendations.length === 0) {
+        resultsDiv.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>No suitable switches found</strong><br>
+                ${data.analysis.summary}
+                <ul class="mt-2 mb-0">
+                    ${data.analysis.recommendations?.map(rec => `<li>${rec}</li>`).join('') || ''}
+                </ul>
+            </div>
+        `;
+        analysisCard.style.display = 'none';
+        return;
+    }
+
+    // Display requirements summary
+    let html = `
+        <div class="alert alert-info mb-4">
+            <h6><i class="fas fa-info-circle"></i> Calculated Requirements</h6>
+            <div class="row">
+                <div class="col-md-3">
+                    <small class="text-muted">Max Voltage</small><br>
+                    <strong>${data.requirements.maxVoltage.toFixed(1)} V</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Max Current</small><br>
+                    <strong>${data.requirements.maxCurrent.toFixed(1)} A</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Switching Freq</small><br>
+                    <strong>${(data.requirements.switchingFrequency / 1000).toFixed(0)} kHz</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Est. Losses</small><br>
+                    <strong>${data.requirements.thermalRequirements.totalLoss.toFixed(2)} W</strong>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Display recommendations
+    html += '<div class="row">';
+    
+    data.recommendations.forEach((switch_, index) => {
+        const badgeClass = index === 0 ? 'bg-success' : index === 1 ? 'bg-primary' : 'bg-secondary';
+        const rankText = index === 0 ? 'Best Match' : index === 1 ? '2nd Choice' : `${index + 1}rd Choice`;
+        
+        html += `
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 ${index === 0 ? 'border-success' : ''}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">${switch_.partNumber}</h6>
+                        <span class="badge ${badgeClass}">${rankText}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Manufacturer</small><br>
+                                <strong>${switch_.manufacturer}</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Technology</small><br>
+                                <strong>${switch_.technology}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-4">
+                                <small class="text-muted">VDS</small><br>
+                                <strong>${switch_.vds} V</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">ID</small><br>
+                                <strong>${switch_.id_continuous} A</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">RDS(on)</small><br>
+                                <strong>${(switch_.rds_on * 1000).toFixed(1)} mΩ</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-4">
+                                <small class="text-muted">QG</small><br>
+                                <strong>${switch_.qg} nC</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Package</small><br>
+                                <strong>${switch_.package}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Max Freq</small><br>
+                                <strong>${(switch_.max_frequency / 1000).toFixed(0)} kHz</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Est. Efficiency</small><br>
+                                <strong>${switch_.efficiency.toFixed(1)}%</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Total Losses</small><br>
+                                <strong>${switch_.losses.total.toFixed(2)} W</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div class="progress-bar ${index === 0 ? 'bg-success' : 'bg-primary'}" 
+                                 style="width: ${(switch_.score / 100) * 100}%"></div>
+                        </div>
+                        <small class="text-muted">Match Score: ${switch_.score.toFixed(0)}/100</small>
+                        
+                        <div class="mt-2">
+                            <span class="badge bg-light text-dark me-1">${switch_.price_range} cost</span>
+                            ${switch_.applications.slice(0, 2).map(app => 
+                                `<span class="badge bg-outline-secondary me-1">${app}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    resultsDiv.innerHTML = html;
+
+    // Display analysis
+    if (data.analysis) {
+        let analysisHtml = `
+            <div class="alert alert-success">
+                <h6><i class="fas fa-lightbulb"></i> ${data.analysis.summary}</h6>
+            </div>
+        `;
+        
+        if (data.analysis.reasons && data.analysis.reasons.length > 0) {
+            analysisHtml += `
+                <div class="mb-3">
+                    <h6>Why this recommendation:</h6>
+                    <ul class="mb-0">
+                        ${data.analysis.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        if (data.analysis.considerations && data.analysis.considerations.length > 0) {
+            analysisHtml += `
+                <div>
+                    <h6>Design considerations:</h6>
+                    <ul class="mb-0">
+                        ${data.analysis.considerations.map(consideration => `<li>${consideration}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        analysisDiv.innerHTML = analysisHtml;
+        analysisCard.style.display = 'block';
+    }
+}
+
 // Event listeners
 document.getElementById('coreMaterial').addEventListener('change', updateMaterialProperties);

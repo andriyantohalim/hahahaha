@@ -19,6 +19,190 @@ const coreMaterials = {
   'Kool_Mu': { Bsat: 1.05, Tc: 500, resistivity: 1000000, Ae: 0.000097, le: 0.0395, Ve: 0.00000383 }
 };
 
+// Semiconductor switch database
+const semiconductorSwitches = {
+  // Silicon MOSFETs - Low Voltage (12V-100V)
+  silicon_low_voltage: [
+    {
+      partNumber: 'IPD04N03LA',
+      manufacturer: 'Infineon',
+      technology: 'Silicon MOSFET',
+      vds: 30,
+      id_continuous: 50,
+      id_pulsed: 350,
+      rds_on: 3.8e-3,
+      qg: 15,
+      package: 'D-PAK',
+      price_range: 'low',
+      applications: ['Buck converter', 'Synchronous rectifier'],
+      max_frequency: 500000,
+      tj_max: 175
+    },
+    {
+      partNumber: 'Si4642DY',
+      manufacturer: 'Vishay',
+      technology: 'Silicon MOSFET',
+      vds: 30,
+      id_continuous: 25,
+      id_pulsed: 100,
+      rds_on: 6.5e-3,
+      qg: 12,
+      package: 'SO-8',
+      price_range: 'low',
+      applications: ['Buck converter', 'Synchronous rectifier'],
+      max_frequency: 300000,
+      tj_max: 150
+    },
+    {
+      partNumber: 'STL200N4F6AG',
+      manufacturer: 'STMicroelectronics',
+      technology: 'Silicon MOSFET',
+      vds: 40,
+      id_continuous: 120,
+      id_pulsed: 480,
+      rds_on: 1.5e-3,
+      qg: 45,
+      package: 'PowerFLAT 5x6',
+      price_range: 'medium',
+      applications: ['Buck converter', 'Boost converter'],
+      max_frequency: 400000,
+      tj_max: 175
+    }
+  ],
+
+  // Silicon MOSFETs - High Voltage (100V-800V)
+  silicon_high_voltage: [
+    {
+      partNumber: 'IRFPE50PBF',
+      manufacturer: 'Vishay',
+      technology: 'Silicon MOSFET',
+      vds: 800,
+      id_continuous: 7.8,
+      id_pulsed: 31,
+      rds_on: 0.85,
+      qg: 45,
+      package: 'TO-247AC',
+      price_range: 'medium',
+      applications: ['Flyback converter', 'Boost converter'],
+      max_frequency: 100000,
+      tj_max: 150
+    },
+    {
+      partNumber: 'SPP04N80C3',
+      manufacturer: 'Infineon',
+      technology: 'CoolMOS',
+      vds: 800,
+      id_continuous: 4.0,
+      id_pulsed: 16,
+      rds_on: 1.25,
+      qg: 18,
+      package: 'TO-220',
+      price_range: 'medium',
+      applications: ['Flyback converter', 'Phase-shifted full-bridge'],
+      max_frequency: 200000,
+      tj_max: 150
+    }
+  ],
+
+  // SiC MOSFETs
+  sic_mosfets: [
+    {
+      partNumber: 'C3M0015065K',
+      manufacturer: 'Wolfspeed',
+      technology: 'SiC MOSFET',
+      vds: 650,
+      id_continuous: 120,
+      id_pulsed: 240,
+      rds_on: 15e-3,
+      qg: 45,
+      package: 'TO-247-4',
+      price_range: 'high',
+      applications: ['Buck converter', 'Boost converter', 'Phase-shifted full-bridge'],
+      max_frequency: 1000000,
+      tj_max: 175
+    },
+    {
+      partNumber: 'SCTWA35N65G2V-4',
+      manufacturer: 'STMicroelectronics',
+      technology: 'SiC MOSFET',
+      vds: 650,
+      id_continuous: 35,
+      id_pulsed: 140,
+      rds_on: 45e-3,
+      qg: 28,
+      package: 'HiP247-4',
+      price_range: 'high',
+      applications: ['Buck converter', 'Boost converter', 'Flyback converter'],
+      max_frequency: 800000,
+      tj_max: 175
+    },
+    {
+      partNumber: 'SCTH60N120G2-7',
+      manufacturer: 'STMicroelectronics',
+      technology: 'SiC MOSFET',
+      vds: 1200,
+      id_continuous: 60,
+      id_pulsed: 180,
+      rds_on: 25e-3,
+      qg: 85,
+      package: 'TO-247-7',
+      price_range: 'high',
+      applications: ['Boost converter', 'Phase-shifted full-bridge'],
+      max_frequency: 500000,
+      tj_max: 175
+    }
+  ],
+
+  // GaN HEMTs
+  gan_hemts: [
+    {
+      partNumber: 'EPC2057',
+      manufacturer: 'EPC',
+      technology: 'GaN HEMT',
+      vds: 100,
+      id_continuous: 35,
+      id_pulsed: 140,
+      rds_on: 16e-3,
+      qg: 4.2,
+      package: 'BGA',
+      price_range: 'high',
+      applications: ['Buck converter', 'Boost converter'],
+      max_frequency: 5000000,
+      tj_max: 150
+    },
+    {
+      partNumber: 'EPC2045',
+      manufacturer: 'EPC',
+      technology: 'GaN HEMT',
+      vds: 100,
+      id_continuous: 16,
+      id_pulsed: 75,
+      rds_on: 25e-3,
+      qg: 2.2,
+      package: 'BGA',
+      price_range: 'high',
+      applications: ['Buck converter', 'Synchronous rectifier'],
+      max_frequency: 10000000,
+      tj_max: 150
+    },
+    {
+      partNumber: 'GS66508T',
+      manufacturer: 'GaN Systems',
+      technology: 'GaN HEMT',
+      vds: 650,
+      id_continuous: 30,
+      id_pulsed: 120,
+      rds_on: 50e-3,
+      qg: 4.7,
+      package: 'GaNPX',
+      price_range: 'high',
+      applications: ['Buck converter', 'Boost converter', 'Phase-shifted full-bridge'],
+      max_frequency: 2000000,
+      tj_max: 150
+    }
+  ]
+};
+
 // Real magnetic component database
 const magneticParts = {
   // TDK Inductors
@@ -801,6 +985,217 @@ app.post('/api/compensation/bode', (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+// Switch recommendation class
+class SwitchRecommendation {
+  static recommendSwitches(specs) {
+    const {
+      topology,
+      inputVoltage,
+      outputVoltage,
+      outputCurrent,
+      switchingFrequency,
+      efficiency = 0.9,
+      costPriority = 'medium' // low, medium, high
+    } = specs;
+
+    // Calculate switch requirements
+    const maxVoltage = this.calculateMaxVoltage(topology, inputVoltage, outputVoltage);
+    const maxCurrent = this.calculateMaxCurrent(topology, outputCurrent, efficiency);
+    const thermalRequirements = this.calculateThermalRequirements(maxCurrent, maxVoltage, switchingFrequency);
+
+    // Get all switches and filter by requirements
+    const allSwitches = this.getAllSwitches();
+    const suitableSwitches = allSwitches.filter(sw => 
+      this.isSwitchSuitable(sw, maxVoltage, maxCurrent, switchingFrequency, topology)
+    );
+
+    // Score and rank switches
+    const rankedSwitches = suitableSwitches.map(sw => ({
+      ...sw,
+      score: this.calculateSwitchScore(sw, specs, thermalRequirements),
+      losses: this.calculateSwitchLosses(sw, maxCurrent, switchingFrequency),
+      efficiency: this.estimateEfficiency(sw, maxCurrent, switchingFrequency)
+    })).sort((a, b) => b.score - a.score);
+
+    return {
+      requirements: {
+        maxVoltage,
+        maxCurrent,
+        switchingFrequency,
+        thermalRequirements
+      },
+      recommendations: rankedSwitches.slice(0, 5), // Top 5 recommendations
+      analysis: this.generateAnalysis(rankedSwitches, specs)
+    };
+  }
+
+  static calculateMaxVoltage(topology, vin, vout) {
+    const safetyFactor = 1.5; // 50% derating
+    switch (topology.toLowerCase()) {
+      case 'buck':
+        return vin * safetyFactor;
+      case 'boost':
+        return vout * safetyFactor;
+      case 'flyback':
+        return Math.max(vin, vout * 2) * safetyFactor; // Reflected voltage consideration
+      case 'phase-shifted full-bridge':
+        return vin * safetyFactor;
+      default:
+        return Math.max(vin, vout) * safetyFactor;
+    }
+  }
+
+  static calculateMaxCurrent(topology, iout, efficiency) {
+    const safetyFactor = 1.3; // 30% derating
+    switch (topology.toLowerCase()) {
+      case 'buck':
+        return iout * safetyFactor;
+      case 'boost':
+        return (iout / efficiency) * safetyFactor;
+      case 'flyback':
+        return (iout * 2 / efficiency) * safetyFactor; // Peak current in flyback
+      case 'phase-shifted full-bridge':
+        return (iout / efficiency) * safetyFactor;
+      default:
+        return iout * safetyFactor;
+    }
+  }
+
+  static calculateThermalRequirements(current, voltage, frequency) {
+    // Simplified thermal calculation
+    const conductionLoss = Math.pow(current, 2) * 0.02; // Assume 20mΩ RDS(on)
+    const switchingLoss = voltage * current * frequency * 1e-9; // Simplified switching loss
+    return {
+      totalLoss: conductionLoss + switchingLoss,
+      conductionLoss,
+      switchingLoss
+    };
+  }
+
+  static getAllSwitches() {
+    return [
+      ...semiconductorSwitches.silicon_low_voltage,
+      ...semiconductorSwitches.silicon_high_voltage,
+      ...semiconductorSwitches.sic_mosfets,
+      ...semiconductorSwitches.gan_hemts
+    ];
+  }
+
+  static isSwitchSuitable(sw, maxVoltage, maxCurrent, frequency, topology) {
+    return (
+      sw.vds >= maxVoltage &&
+      sw.id_continuous >= maxCurrent &&
+      sw.max_frequency >= frequency &&
+      sw.applications.some(app => app.toLowerCase().includes(topology.toLowerCase().split(' ')[0]))
+    );
+  }
+
+  static calculateSwitchScore(sw, specs, thermalReq) {
+    let score = 100;
+
+    // Voltage margin (higher is better, but not too high)
+    const voltageMargin = sw.vds / this.calculateMaxVoltage(specs.topology, specs.inputVoltage, specs.outputVoltage);
+    if (voltageMargin < 1.2) score -= 20;
+    else if (voltageMargin > 3) score -= 10; // Penalize over-specification
+
+    // Current margin
+    const currentMargin = sw.id_continuous / this.calculateMaxCurrent(specs.topology, specs.outputCurrent, specs.efficiency || 0.9);
+    if (currentMargin < 1.1) score -= 20;
+    else if (currentMargin > 3) score -= 5;
+
+    // RDS(on) - lower is better
+    score += Math.max(0, 20 - sw.rds_on * 1000); // Convert to mΩ
+
+    // Gate charge - lower is better for switching applications
+    score += Math.max(0, 15 - sw.qg / 2);
+
+    // Frequency capability
+    if (sw.max_frequency >= specs.switchingFrequency * 5) score += 10;
+    else if (sw.max_frequency < specs.switchingFrequency * 2) score -= 15;
+
+    // Cost consideration
+    const costMultiplier = specs.costPriority === 'low' ? 1.5 : specs.costPriority === 'high' ? 0.5 : 1;
+    if (sw.price_range === 'low') score += 15 * costMultiplier;
+    else if (sw.price_range === 'high') score -= 10 * costMultiplier;
+
+    // Technology bonus for high frequency applications
+    if (specs.switchingFrequency > 500000) {
+      if (sw.technology.includes('GaN')) score += 15;
+      else if (sw.technology.includes('SiC')) score += 10;
+    }
+
+    return Math.max(0, score);
+  }
+
+  static calculateSwitchLosses(sw, current, frequency) {
+    const conductionLoss = Math.pow(current, 2) * sw.rds_on;
+    const switchingLoss = sw.qg * 12 * frequency * 1e-9; // Assume 12V gate drive
+    return {
+      conduction: conductionLoss,
+      switching: switchingLoss,
+      total: conductionLoss + switchingLoss
+    };
+  }
+
+  static estimateEfficiency(sw, current, frequency) {
+    const losses = this.calculateSwitchLosses(sw, current, frequency);
+    const outputPower = current * 12; // Assume 12V output for estimation
+    return (outputPower / (outputPower + losses.total)) * 100;
+  }
+
+  static generateAnalysis(rankedSwitches, specs) {
+    if (rankedSwitches.length === 0) {
+      return {
+        summary: "No suitable switches found for the given specifications.",
+        recommendations: ["Consider relaxing voltage or current requirements", "Check if switching frequency is too high"]
+      };
+    }
+
+    const topSwitch = rankedSwitches[0];
+    const analysis = {
+      summary: `Best recommendation: ${topSwitch.partNumber} (${topSwitch.manufacturer})`,
+      reasons: [],
+      considerations: []
+    };
+
+    // Add reasons for recommendation
+    if (topSwitch.technology.includes('GaN') && specs.switchingFrequency > 500000) {
+      analysis.reasons.push("GaN technology provides excellent high-frequency performance");
+    }
+    if (topSwitch.technology.includes('SiC') && specs.inputVoltage > 100) {
+      analysis.reasons.push("SiC technology offers superior high-voltage performance");
+    }
+    if (topSwitch.rds_on < 0.01) {
+      analysis.reasons.push("Very low on-resistance for high efficiency");
+    }
+
+    // Add considerations
+    if (topSwitch.price_range === 'high') {
+      analysis.considerations.push("Higher cost component - consider if performance justifies expense");
+    }
+    if (topSwitch.package === 'BGA') {
+      analysis.considerations.push("BGA package requires advanced PCB design and assembly");
+    }
+
+    return analysis;
+  }
+}
+
+// Switch recommendation API endpoint
+app.post('/api/switches/recommend', (req, res) => {
+  try {
+    const result = SwitchRecommendation.recommendSwitches(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Get switches database
+app.get('/api/switches', (req, res) => {
+  res.json(semiconductorSwitches);
 });
 
 // Get magnetic parts database
