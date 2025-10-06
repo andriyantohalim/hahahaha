@@ -26,6 +26,11 @@
                         <i class="fas fa-wave-square"></i> Feedback Compensation
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-white" id="switches-tab" data-bs-toggle="tab" data-bs-target="#switches" type="button" role="tab">
+                        <i class="fas fa-microchip"></i> Switch Selection
+                    </button>
+                </li>
             </ul>
         </header>
 
@@ -286,6 +291,116 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Switch Selection Tab -->
+            <div class="tab-pane fade" id="switches" role="tabpanel">
+                <div class="row">
+                    <!-- Switch Input Panel -->
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Converter Specifications</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="switchTopology" class="form-label">Topology</label>
+                                    <select class="form-select" id="switchTopology">
+                                        <option value="buck">Buck Converter</option>
+                                        <option value="boost">Boost Converter</option>
+                                        <option value="flyback">Flyback Converter</option>
+                                        <option value="phase-shifted full-bridge">Phase-Shifted Full-Bridge</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="switchInputVoltage" class="form-label">Input Voltage (V)</label>
+                                            <input type="number" class="form-control" id="switchInputVoltage" value="48" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="switchOutputVoltage" class="form-label">Output Voltage (V)</label>
+                                            <input type="number" class="form-control" id="switchOutputVoltage" value="12" step="0.1">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="switchOutputCurrent" class="form-label">Output Current (A)</label>
+                                            <input type="number" class="form-control" id="switchOutputCurrent" value="10" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="switchFrequency" class="form-label">Switching Frequency (Hz)</label>
+                                            <input type="number" class="form-control" id="switchFrequency" value="100000" step="1000">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="switchEfficiency" class="form-label">Target Efficiency</label>
+                                            <select class="form-select" id="switchEfficiency">
+                                                <option value="0.85">85%</option>
+                                                <option value="0.90" selected>90%</option>
+                                                <option value="0.95">95%</option>
+                                                <option value="0.98">98%</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="switchCostPriority" class="form-label">Cost Priority</label>
+                                            <select class="form-select" id="switchCostPriority">
+                                                <option value="low">Low Cost</option>
+                                                <option value="medium" selected>Balanced</option>
+                                                <option value="high">Performance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary w-100" onclick="recommendSwitches()">
+                                    <i class="fas fa-search"></i> Find Switch Recommendations
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Switch Results Panel -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Switch Recommendations</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="switchResults">
+                                    <div class="text-center text-muted py-5">
+                                        <i class="fas fa-microchip fa-3x mb-3"></i>
+                                        <p>Enter converter specifications and click "Find Switch Recommendations" to get personalized semiconductor switch suggestions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Switch Analysis Panel -->
+                        <div class="card mt-3" id="switchAnalysisCard" style="display: none;">
+                            <div class="card-header">
+                                <h5>Selection Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="switchAnalysis"></div>
                             </div>
                         </div>
                     </div>
