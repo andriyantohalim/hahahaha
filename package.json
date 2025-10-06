@@ -1,0 +1,19 @@
+{
+  "name": "magnetic-design-assistant",
+  "version": "1.0.0",
+  "description": "Web application for assisting with magnetic design in DC-DC converters",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["power-electronics", "magnetic-design", "dc-dc-converter", "inductor", "transformer"],
+  "author": "OpenHands",
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^4.5.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
